@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Question Answering AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+        .container { max-width: 600px; margin: auto; background: #fff; padding: 2em; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
+        h1 { text-align: center; }
+        textarea { width: 100%; min-height: 60px; margin-bottom: 1em; padding: 0.5em; font-size: 1em; }
+        button { padding: 0.7em 2em; font-size: 1em; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer; }
+        button:disabled { background: #aaa; }
+        .answer { margin-top: 2em; background: #e9ecef; padding: 1em; border-radius: 4px; }
+        .error { color: red; margin-top: 1em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ask a Question about your PDFs</h1>
+        <form id="qa-form">
+            <label for="question">Your Question:</label><br>
+            <textarea id="question" required></textarea><br>
+            <button type="submit">Ask</button>
+        </form>
+        <div class="answer" id="answer" style="display:none;"></div>
+        <div class="error" id="error"></div>
+    </div>
+    <script>
+        const form = document.getElementById('qa-form');
+        const answerDiv = document.getElementById('answer');
+        const errorDiv = document.getElementById('error');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            answerDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            const question = document.getElementById('question').value.trim();
+            if (!question) return;
+            form.querySelector('button').disabled = true;
+            try {
+                const res = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    answerDiv.textContent = data.answer;
+                    answerDiv.style.display = 'block';
+                } else {
+                    errorDiv.textContent = data.error || 'An error occurred.';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Network error.';
+            }
+            form.querySelector('button').disabled = false;
+        };
+    </script>
+</body>
+</html> 
