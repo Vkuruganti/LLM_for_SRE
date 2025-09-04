@@ -1,0 +1,6 @@
+numpy
+pandas
+requests
+langchain
+python-dotenv
+logging
